@@ -1,0 +1,9 @@
+{
+  "name": "project-builder-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Autonomous Final-Year Engineering Project Builder & Architecture Platform",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  }
+}
