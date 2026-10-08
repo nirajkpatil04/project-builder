@@ -109,6 +109,28 @@ npm run dev
 ## 🧪 Running Automated Tests
 ```bash
 cd backend
-.\.venv\Scripts\pytest -v
+.\.venv\Scripts\python.exe -m pytest tests/ -v
 ```
-All 5 comprehensive test suites verify health, recommendation scoring, blueprint compilation across all 22 disciplines, and user authentication.
+All 9 comprehensive test suites verify health checks, recommender scoring, blueprint compilation across all 22 disciplines, physical engineering/fabrication generators, 38 AICTE branch catalog, security protections, Google SSO mock, and multi-step onboarding.
+
+---
+
+## ☁️ Deploying to Vercel
+
+The repository is configured for full-stack deployment on Vercel:
+
+1. **Push to GitHub:**
+   ```bash
+   git remote add origin https://github.com/<your-username>/<your-repo-name>.git
+   git branch -M main
+   git push -u origin main
+   ```
+2. **Import into Vercel:**
+   - Navigate to [vercel.com/new](https://vercel.com/new).
+   - Select your imported GitHub repository.
+   - Vercel automatically detects [`vercel.json`](vercel.json), running `cd frontend && npm install && npm run build` and serving static assets from `frontend/dist`.
+   - All `/api/*` endpoints are dynamically handled by the serverless Python runtime via [`api/index.py`](api/index.py).
+3. **Environment Variables (Optional):**
+   - Add `JWT_SECRET`, `ADMIN_PASSWORD`, `GEMINI_API_KEY`, or `OPENAI_API_KEY` in the Vercel project settings under **Environment Variables**.
+4. Click **Deploy**!
+
