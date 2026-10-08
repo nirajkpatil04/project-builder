@@ -28,11 +28,12 @@ env/
 htmlcov/
 
 # Local databases & uploads
-backend/data/*.db
-backend/data/*.sqlite3
+backend/data/*.db*
+backend/data/*.sqlite*
 !backend/data/.gitkeep
 backend/data/exports/
-*.db
+*.db*
+*.sqlite*
 
 # Node & Frontend
 node_modules/
