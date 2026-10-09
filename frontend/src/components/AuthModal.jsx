@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { X, Lock, Mail, User, GraduationCap, ArrowRight, ArrowLeft, ChevronRight, Plus, Building, BookMarked, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { SignInButton } from '@clerk/react';
 import { api, setAuthToken, setStoredUser } from '../api';
-
-const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const hasClerk = Boolean(
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_test_ZmluZS1saW9uZXNzLTMxMDcuY2xlcmsuYWNjb3VudHMuZGV2JA'
+);
 
 export const INDIAN_BRANCH_CATEGORIES = [
   {

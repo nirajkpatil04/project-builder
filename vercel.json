@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "cd frontend && npm install && VITE_CLERK_PUBLISHABLE_KEY=pk_test_ZmluZS1saW9uZXNzLTMxMDcuY2xlcmsuYWNjb3VudHMuZGV2JA npm run build",
   "outputDirectory": "frontend/dist",
   "framework": "vite",
+  "build": {
+    "env": {
+      "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_ZmluZS1saW9uZXNzLTMxMDcuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

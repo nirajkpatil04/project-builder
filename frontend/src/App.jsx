@@ -8,7 +8,10 @@ import AuthModal from './components/AuthModal';
 import TermsModal from './components/TermsModal';
 import { api, getStoredUser, setAuthToken, setStoredUser } from './api';
 
-const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const hasClerk = Boolean(
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_test_ZmluZS1saW9uZXNzLTMxMDcuY2xlcmsuYWNjb3VudHMuZGV2JA'
+);
 
 function ClerkSessionSync({ onUserSynced }) {
   const { isLoaded, isSignedIn, user: clerkUser } = useUser();

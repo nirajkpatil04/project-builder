@@ -8,7 +8,10 @@ import {
 } from '@clerk/react';
 import { getAuthToken } from '../api';
 
-const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const hasClerk = Boolean(
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_test_ZmluZS1saW9uZXNzLTMxMDcuY2xlcmsuYWNjb3VudHMuZGV2JA'
+);
 
 export default function Navbar({
   activeTab,
