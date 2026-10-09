@@ -59,15 +59,34 @@ def register(payload: RegisterIn, db: Session = Depends(get_db)):
 @router.post("/google", response_model=TokenOut)
 def google_auth(payload: GoogleAuthIn, db: Session = Depends(get_db)):
     """Single Sign-On with Google OAuth 2.0 (Step 1 Option 2)."""
-    clean_email = payload.email.lower().strip()
+    clean_email: str | None = None
+    display_name = payload.name
+
+    if payload.credential:
+        try:
+            # Google ID tokens are standard JWTs containing email, name, picture
+            claims = jwt.decode(payload.credential, options={"verify_signature": False})
+            if "email" in claims:
+                clean_email = str(claims["email"]).lower().strip()
+            if "name" in claims and not display_name:
+                display_name = str(claims["name"]).strip()
+        except Exception as e:
+            logger.warning(f"Could not parse Google ID token credential: {e}")
+
+    if not clean_email and payload.email:
+        clean_email = str(payload.email).lower().strip()
+
+    if not clean_email:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Valid Google email or credential token is required")
+
     user = db.query(User).filter(User.email == clean_email).first()
 
     if not user:
         # Create new student user via Google SSO
-        display_name = payload.name or clean_email.split("@")[0].replace(".", " ").title()
+        final_name = display_name or clean_email.split("@")[0].replace(".", " ").title()
         user = User(
             email=clean_email,
-            full_name=display_name,
+            full_name=final_name,
             password_hash=hash_password(uuid.uuid4().hex + "G@oogle99!"),
             branch=None,
             role="student",

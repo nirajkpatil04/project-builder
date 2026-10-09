@@ -52,7 +52,7 @@ class LoginIn(BaseModel):
 
 
 class GoogleAuthIn(BaseModel):
-    email: EmailStr
+    email: EmailStr | None = None
     name: str | None = None
     credential: str | None = None
     picture: str | None = None
