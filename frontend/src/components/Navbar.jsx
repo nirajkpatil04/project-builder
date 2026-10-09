@@ -1,6 +1,14 @@
 import React from 'react';
 import { Layers, FolderGit2, ShieldCheck, LogIn, LogOut, BookOpen, FileCheck } from 'lucide-react';
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from '@clerk/react';
 import { getAuthToken } from '../api';
+
+const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 export default function Navbar({
   activeTab,
@@ -121,7 +129,47 @@ export default function Navbar({
 
         {/* Auth CTA */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {user ? (
+          {hasClerk ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <button className="btn btn-primary btn-sm">
+                    <LogIn size={15} />
+                    <span>Sign In</span>
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="btn btn-secondary btn-sm">
+                    <span>Sign Up</span>
+                  </button>
+                </SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {user && (
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        {user.full_name}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
+                        <span className={`badge ${
+                          user.role === 'admin' ? 'badge-advanced' : user.role === 'mentor' ? 'badge-cyan' : 'badge-beginner'
+                        }`}>
+                          {user.role}
+                        </span>
+                        {user.branch && (
+                          <span className="badge badge-intermediate" style={{ textTransform: 'uppercase' }}>
+                            {user.branch}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </Show>
+            </div>
+          ) : user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>

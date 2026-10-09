@@ -386,3 +386,19 @@ def test_google_sso_and_multistep_onboarding():
     assert onboarded_user["college"] == "COEP Technological University, Pune"
     assert onboarded_user["full_name"] == "Aditya Patil"
 
+
+def test_clerk_auth():
+    """Verify Clerk SSO endpoint integration."""
+    test_email = f"clerk.student.{uuid.uuid4().hex[:6]}@engineering.edu"
+    clerk_res = client.post(
+        "/api/auth/clerk",
+        json={"email": test_email, "name": "Clerk Test Student"},
+    )
+    assert clerk_res.status_code == 200
+    data = clerk_res.json()
+    assert data["user"]["has_completed_onboarding"] is False
+    assert data["user"]["email"] == test_email
+    assert data["user"]["full_name"] == "Clerk Test Student"
+    assert "access_token" in data
+
+

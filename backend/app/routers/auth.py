@@ -109,6 +109,59 @@ def google_auth(payload: GoogleAuthIn, db: Session = Depends(get_db)):
     return TokenOut(access_token=token, user=UserOut.model_validate(user))
 
 
+@router.post("/clerk", response_model=TokenOut)
+def clerk_auth(payload: GoogleAuthIn, db: Session = Depends(get_db)):
+    """Single Sign-On with Clerk Authentication."""
+    clean_email: str | None = None
+    display_name = payload.name
+
+    if payload.credential:
+        try:
+            claims = jwt.decode(payload.credential, options={"verify_signature": False})
+            if "email" in claims:
+                clean_email = str(claims["email"]).lower().strip()
+            elif "sub" in claims:
+                clean_email = f"clerk_{claims['sub']}@clerk.dev"
+            if "name" in claims and not display_name:
+                display_name = str(claims["name"]).strip()
+        except Exception as e:
+            logger.warning(f"Could not parse Clerk credential: {e}")
+
+    if not clean_email and payload.email:
+        clean_email = str(payload.email).lower().strip()
+
+    if not clean_email:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Valid email or credential token is required")
+
+    user = db.query(User).filter(User.email == clean_email).first()
+
+    if not user:
+        final_name = display_name or clean_email.split("@")[0].replace(".", " ").title()
+        user = User(
+            email=clean_email,
+            full_name=final_name,
+            password_hash=hash_password(uuid.uuid4().hex + "ClerkAuth99!"),
+            branch=None,
+            role="student",
+            has_completed_onboarding=False,
+            is_active=True,
+        )
+        db.add(user)
+        db.flush()
+        db.add(AuditLog(user_id=user.id, action="clerk_signup", detail=f"Signed up via Clerk ({user.email})"))
+    else:
+        if not user.is_active:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Account has been deactivated")
+        db.add(AuditLog(user_id=user.id, action="clerk_login", detail=f"Logged in via Clerk ({user.email})"))
+
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(user)
+
+    token = create_access_token(user)
+    return TokenOut(access_token=token, user=UserOut.model_validate(user))
+
+
 @router.post("/onboarding", response_model=TokenOut)
 def complete_onboarding(
     payload: OnboardingIn,

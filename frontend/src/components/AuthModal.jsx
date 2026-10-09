@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, User, GraduationCap, ArrowRight, ArrowLeft, ChevronRight, Plus, Building, BookMarked, CheckCircle2 } from 'lucide-react';
+import { X, Lock, Mail, User, GraduationCap, ArrowRight, ArrowLeft, ChevronRight, Plus, Building, BookMarked, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { SignInButton } from '@clerk/react';
 import { api, setAuthToken, setStoredUser } from '../api';
+
+const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 export const INDIAN_BRANCH_CATEGORIES = [
   {
@@ -344,6 +347,30 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               }}>
                 {error}
               </div>
+            )}
+
+            {/* Clerk Authentication Option */}
+            {hasClerk && (
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    fontWeight: 600,
+                    fontSize: '0.92rem',
+                  }}
+                >
+                  <ShieldCheck size={18} />
+                  <span>Continue with Clerk</span>
+                </button>
+              </SignInButton>
             )}
 
             {/* Google OAuth 2.0 SSO Option */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from '@clerk/react';
 import Navbar from './components/Navbar';
 import Wizard from './components/Wizard';
 import Dashboard from './components/Dashboard';
@@ -6,6 +7,32 @@ import MentorPortal from './components/MentorPortal';
 import AuthModal from './components/AuthModal';
 import TermsModal from './components/TermsModal';
 import { api, getStoredUser, setAuthToken, setStoredUser } from './api';
+
+const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+
+function ClerkSessionSync({ onUserSynced }) {
+  const { isLoaded, isSignedIn, user: clerkUser } = useUser();
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn && clerkUser) {
+      const email = clerkUser.primaryEmailAddress?.emailAddress;
+      const name = clerkUser.fullName || email?.split('@')[0];
+      if (email) {
+        api.googleAuth({ email, name })
+          .then((data) => {
+            setAuthToken(data.access_token);
+            setStoredUser(data.user);
+            onUserSynced(data.user);
+          })
+          .catch((err) => {
+            console.warn('Could not sync Clerk user with backend:', err);
+          });
+      }
+    }
+  }, [isLoaded, isSignedIn, clerkUser]);
+
+  return null;
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('wizard');
@@ -42,6 +69,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {hasClerk && <ClerkSessionSync onUserSynced={setUser} />}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
